@@ -3,6 +3,8 @@ import fetch from "node-fetch";
 import promptSync from "prompt-sync";
 const prompt = promptSync();
 
+// console.log(userYear);
+
 async function getProcessorData() {
   try {
     const response = await fetch(
@@ -74,7 +76,10 @@ console.log(data);
 
 const userYear = prompt("What year does your processor have? ");
 
-const filteredProcessors = data.processors.filter(
-  (processor, index) => data.years[index] === userYear
-);
+let filteredProcessors = [];
+for (let i = 0; i < data.years.length; i++) {
+  if (data.years[i] === userYear) {
+    filteredProcessors.push(data.processors[i]);
+  }
+}
 console.log(filteredProcessors);
