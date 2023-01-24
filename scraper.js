@@ -66,11 +66,6 @@ function getYear(response, position) {
   return "N/A";
 }
 
-function isEnd(response, position) {
-  if (position === -1) return "N/A";
-  let th = response.slice(position + 5, position + 8);
-}
-
 const data = await getProcessorData();
 console.log(data);
 
