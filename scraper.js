@@ -3,8 +3,6 @@ import fetch from "node-fetch";
 import promptSync from "prompt-sync";
 const prompt = promptSync();
 
-// console.log(userYear);
-
 async function getProcessorData() {
   try {
     const response = await fetch(
