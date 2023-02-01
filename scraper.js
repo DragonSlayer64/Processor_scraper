@@ -64,6 +64,7 @@ function getYear(response, position) {
   return "N/A";
 }
 
+
 const data = await getProcessorData();
 console.log(data);
 
