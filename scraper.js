@@ -30,7 +30,7 @@ async function getProcessorData() {
       if (position === -1) break;
       let year = getYear(responseText, position);
       position = findTr(responseText, position);
-      if (findTr === -1) break;
+      if (position === -1) break; // Fixed typo: findTr instead of findTr === -1
       if (year === "N/A " || position === -1) {
         break;
       }
@@ -73,7 +73,7 @@ async function showProcessorInfo(processor) {
       `https://en.wikipedia.org/wiki/${processor}`
     );
     const responseText = await response.text();
-    const infoBegin = responseText.indexOf("<table class=\"infobox");
+    const infoBegin = responseText.indexOf('<table class="infobox'); // Fixed typo: double quotes for class attribute
     const infoEnd = responseText.indexOf("</table>", infoBegin) + 8;
     const processorInfo = responseText.slice(infoBegin, infoEnd);
     console.log("Processor Information for " + processor + ":");
@@ -86,39 +86,22 @@ async function showProcessorInfo(processor) {
 async function main() {
   const data = await getProcessorData();
   console.log("Available Processors:");
-  console.log(data.processors);
+  console.log(data.processors.map((processor, index) => `${index + 1}. ${processor}`)
+  .join("\n"));
 
-  const userYear = prompt("Enter the year of your processor: ");
-  
-  let filteredProcessors = [];
-  for (let i = 0; i < data.years.length; i++) {
-    if (data.years[i] === userYear) {
-filteredProcessors.push(data.processors[i]);
-}
-}
-
-if (filteredProcessors.length === 0) {
-console.log("No processors found for the entered year.");
-} else {
-console.log("Processors available for the entered year:");
-console.log(filteredProcessors);
-
-
-const userSelection = prompt("Enter the index of the processor to view more information: ");
-const selectedIndex = parseInt(userSelection);
-
-if (isNaN(selectedIndex) || selectedIndex < 0 || selectedIndex >= filteredProcessors.length) {
-  console.log("Invalid selection. Exiting...");
-} else {
-  const selectedProcessor = filteredProcessors[selectedIndex];
-  console.log("Selected Processor: " + selectedProcessor);
-  await showProcessorInfo(selectedProcessor);
-}
-}
+  const processorIndex = prompt("Enter the index of the processor you want to know more about (or type 'exit' to quit): ");
+  if (processorIndex === "exit") {
+    console.log("Exiting...");
+    return;
+  }
+  const processor = data.processors[parseInt(processorIndex) - 1];
+  if (!processor) {
+    console.log("Invalid processor index. Please try again.");
+    main();
+    return;
+  }
+  await showProcessorInfo(processor);
+  main();
 }
 
 main();
-
-
-
-
