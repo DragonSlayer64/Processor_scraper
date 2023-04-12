@@ -1,4 +1,3 @@
-import nodefetch from "node-fetch";
 import fetch from "node-fetch";
 import promptSync from "prompt-sync";
 const prompt = promptSync();
@@ -11,7 +10,8 @@ async function getProcessorData() {
     const responseText = await response.text();
     let dataPosition = responseText.indexOf("<td><a");
     let processors = [];
-    while (dataPosition !== -1) {
+    let years = [];
+    for (let i = 0; dataPosition !== -1; i++) {
       let trTag = responseText.slice(dataPosition - 5, dataPosition - 1);
       if (trTag === "<tr>") {
         let dataPositionBegin = responseText.indexOf(">", dataPosition + 6);
@@ -20,19 +20,18 @@ async function getProcessorData() {
         processors.push(proc);
       }
       dataPosition = responseText.indexOf("<td><a", dataPosition + 6);
-    }
-    let position = findTr(responseText, 0);
-    let years = [];
-    while (position !== -1) {
-      position = find4thTd(responseText, position);
-      if (position === -1) break;
-      let year = getYear(responseText, position);
-      position = findTr(responseText, position);
-      if (findTr === -1) break;
-      if (year === "N/A " || position === -1) {
-        break;
+
+      let position = responseText.indexOf("<tr>", dataPosition);
+      while (position !== -1) {
+        position = find4thTd(responseText, position);
+        if (position === -1) break;
+        let year = extractYear(responseText, position);
+        position = findTr(responseText, position);
+        if (year === "N/A" || position === -1) {
+          break;
+        }
+        if (!years.includes(year)) years.push(year);
       }
-      if (!years.includes(year)) years.push(year);
     }
     return { processors, years };
   } catch (error) {
@@ -54,8 +53,8 @@ function find4thTd(response, position) {
   }
   return position;
 }
-function getYear(response, position) {
-  if (position === -1) return "N/A";
+
+function extractYear(response, position) {
   let yearRegex = /(19|20)\d{2}/;
   let year = response.slice(position + 4).match(yearRegex);
   if (year) {
@@ -63,7 +62,6 @@ function getYear(response, position) {
   }
   return "N/A";
 }
-
 
 const data = await getProcessorData();
 console.log(data);
@@ -76,4 +74,7 @@ for (let i = 0; i < data.years.length; i++) {
     filteredProcessors.push(data.processors[i]);
   }
 }
-console.log(filteredProcessors);
+
+if (filteredProcessors.length > 0) {
+  console.log("Filtered Processors for year " + userYear + ":");
+ 
